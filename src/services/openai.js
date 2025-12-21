@@ -1,5 +1,6 @@
-// Backend API URL - defaults to localhost in development
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Backend API URL - uses same domain in production, localhost in development
+const API_URL = import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
 export async function generateQuestions({
   strand,

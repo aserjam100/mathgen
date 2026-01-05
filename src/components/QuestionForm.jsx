@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -9,7 +9,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { curriculumData, questionNumbers } from '@/data/curriculum';
+import { ExampleManager } from '@/components/ExampleManager';
+import { getExampleCount, HARDCODED_STRAND } from '@/utils/exampleStorage';
 
 export function QuestionForm({ onGenerateQuestions, isLoading }) {
   const [selectedStrand, setSelectedStrand] = useState('');
@@ -17,6 +21,7 @@ export function QuestionForm({ onGenerateQuestions, isLoading }) {
   const [selectedLearningObjective, setSelectedLearningObjective] = useState('');
   const [selectedDescription, setSelectedDescription] = useState('');
   const [numberOfQuestions, setNumberOfQuestions] = useState('');
+  const [exampleCount, setExampleCount] = useState(0);
 
   const strands = Object.keys(curriculumData);
   const subStrands = selectedStrand ? Object.keys(curriculumData[selectedStrand]) : [];
@@ -28,6 +33,21 @@ export function QuestionForm({ onGenerateQuestions, isLoading }) {
     selectedStrand && selectedSubStrand && selectedLearningObjective
       ? curriculumData[selectedStrand][selectedSubStrand][selectedLearningObjective]
       : [];
+
+  // Update example count when topic changes
+  useEffect(() => {
+    if (
+      selectedStrand === HARDCODED_STRAND &&
+      selectedSubStrand &&
+      selectedLearningObjective &&
+      selectedDescription
+    ) {
+      const count = getExampleCount(selectedSubStrand, selectedLearningObjective, selectedDescription);
+      setExampleCount(count);
+    } else {
+      setExampleCount(0);
+    }
+  }, [selectedStrand, selectedSubStrand, selectedLearningObjective, selectedDescription]);
 
   const handleStrandChange = (value) => {
     setSelectedStrand(value);
@@ -79,7 +99,14 @@ export function QuestionForm({ onGenerateQuestions, isLoading }) {
         <CardTitle className="text-2xl font-bold">Generate Math Questions</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <Tabs defaultValue="generate" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="generate">Generate Questions</TabsTrigger>
+            <TabsTrigger value="examples">Training Examples</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="generate">
+            <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="strand">Strand</Label>
             <Select value={selectedStrand} onValueChange={handleStrandChange}>
@@ -172,6 +199,14 @@ export function QuestionForm({ onGenerateQuestions, isLoading }) {
             </Select>
           </div>
 
+          {exampleCount > 0 && (
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                {exampleCount} training example{exampleCount !== 1 ? 's' : ''} for this topic
+              </Badge>
+            </div>
+          )}
+
           <Button
             type="submit"
             className="w-full"
@@ -180,6 +215,12 @@ export function QuestionForm({ onGenerateQuestions, isLoading }) {
             {isLoading ? 'Generating Questions...' : 'Generate Questions'}
           </Button>
         </form>
+          </TabsContent>
+
+          <TabsContent value="examples">
+            <ExampleManager />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

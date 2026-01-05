@@ -2,6 +2,8 @@
 const API_URL = import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
+import { getExamples, HARDCODED_STRAND } from '@/utils/exampleStorage';
+
 export async function generateQuestions({
   strand,
   subStrand,
@@ -10,6 +12,11 @@ export async function generateQuestions({
   numberOfQuestions,
 }) {
   try {
+    // Retrieve examples from localStorage (only for "Number and Algebra" strand)
+    const examples = strand === HARDCODED_STRAND
+      ? getExamples(subStrand, learningObjective, description)
+      : [];
+
     const response = await fetch(`${API_URL}/api/generate-questions`, {
       method: 'POST',
       headers: {
@@ -21,6 +28,7 @@ export async function generateQuestions({
         learningObjective,
         description,
         numberOfQuestions,
+        examples, // Include examples in request
       }),
     });
 

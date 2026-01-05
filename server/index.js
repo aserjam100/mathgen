@@ -23,7 +23,7 @@ app.get('/api/health', (req, res) => {
 // Generate questions endpoint
 app.post('/api/generate-questions', async (req, res) => {
   try {
-    const { strand, subStrand, learningObjective, description, numberOfQuestions } = req.body;
+    const { strand, subStrand, learningObjective, description, numberOfQuestions, examples = [] } = req.body;
 
     // Validate request
     if (!strand || !subStrand || !learningObjective || !description || !numberOfQuestions) {
@@ -38,12 +38,24 @@ app.post('/api/generate-questions', async (req, res) => {
       });
     }
 
+    // Build examples section if provided (limit to 5 examples to avoid token limits)
+    let examplesSection = '';
+    if (examples && examples.length > 0) {
+      const limitedExamples = examples.slice(0, 5);
+      examplesSection = `
+
+Here are ${limitedExamples.length} example question${limitedExamples.length > 1 ? 's' : ''} in the desired style and format:
+${JSON.stringify(limitedExamples, null, 2)}
+
+Generate new questions following this same style, difficulty level, and format.`;
+    }
+
     const prompt = `Generate ${numberOfQuestions} multiple choice math questions for Singapore Math curriculum with the following specifications:
 
 Strand: ${strand}
 Sub-Strand: ${subStrand}
 Learning Objective: ${learningObjective}
-Description: ${description}
+Description: ${description}${examplesSection}
 
 For each question, provide:
 1. The question text

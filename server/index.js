@@ -61,6 +61,10 @@ For each question, provide:
 1. The question text
 2. Four options (A, B, C, D)
 3. The correct answer (A, B, C, or D)
+4. A difficulty level (Easy, Medium, or Hard) based on:
+   - Easy: Single-step calculations, small numbers, direct application
+   - Medium: Two-step problems, moderate numbers, some reasoning required
+   - Hard: Multi-step problems, larger numbers, complex word problems
 
 Return ONLY a valid JSON object in this exact format:
 {
@@ -80,12 +84,13 @@ Return ONLY a valid JSON object in this exact format:
         "C": "Third option",
         "D": "Fourth option"
       },
-      "correctAnswer": "A"
+      "correctAnswer": "A",
+      "difficulty": "Medium"
     }
   ]
 }
 
-Make sure the questions are age-appropriate and follow Singapore Math methodology. The difficulty should match the learning objective.`;
+Make sure the questions are age-appropriate and follow Singapore Math methodology.`;
 
     // Call OpenAI API
     const response = await fetch(OPENAI_API_URL, {

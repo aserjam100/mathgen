@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 
 export function QuestionDisplay({ questionsData, onUpdateQuestion }) {
   const [editingQuestion, setEditingQuestion] = useState(null);
@@ -104,7 +105,23 @@ export function QuestionDisplay({ questionsData, onUpdateQuestion }) {
         <Card key={question.id || index}>
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-lg">Question {index + 1}</CardTitle>
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-lg">Question {index + 1}</CardTitle>
+                {question.difficulty && (
+                  <Badge
+                    variant="outline"
+                    className={
+                      question.difficulty === 'Easy'
+                        ? 'border-green-500 text-green-700 bg-green-50'
+                        : question.difficulty === 'Medium'
+                        ? 'border-yellow-500 text-yellow-700 bg-yellow-50'
+                        : 'border-red-500 text-red-700 bg-red-50'
+                    }
+                  >
+                    {question.difficulty}
+                  </Badge>
+                )}
+              </div>
               <Button
                 variant="outline"
                 size="sm"
